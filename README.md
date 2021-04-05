@@ -14,8 +14,7 @@ Directory contains important steps for wind power forecasting applications and i
 
 
 # Usage
-
-### Create Anaconda environment
+#### Create Anaconda environment
 Use the conda environment file **wind_power37.yml** to install the required **wind_power37** environment and its modules.
 
 ```bash
@@ -25,7 +24,7 @@ Activate `wind_power37` conda environment:
 ```bash
 conda activate wind_power37
 ```
-### Create function package
+#### Create function package
 From the root directory, create **solver** package which can be accessed from all the notebooks:
 ```bash
 conda develop .
