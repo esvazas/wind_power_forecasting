@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import seaborn as sns
 import matplotlib.pyplot as plt
 
 def smape(a, b):
@@ -79,6 +80,23 @@ def series_to_supervised(data, n_in=1, n_out=1, dropnan=True):
     return agg
 
 
+def plot_series_predictions(y_true, y_predict, N_OUT=1, method='Naive', plot_samples=800, save=False):
+    ''' Plot predictions and true values for pandas series where index is time. '''
+    color = sns.color_palette("rocket", 5)
+
+    plt.figure(figsize=(14, 5))
+    y_predict.iloc[:plot_samples].plot(color=color[-2], label="Predictions")
+    y_true.iloc[:plot_samples].plot(label='True values')
+    plt.grid(which='both')
+    plt.ylabel('Power (W)')
+    plt.title("{}-steps ahead {} predictions".format(N_OUT, method))
+    plt.tight_layout()
+    plt.legend()
+    if save:
+        plt.savefig("{}_{}step_predictions_1H.pdf".format(method, N_OUT), dpi=450)
+    plt.show()
+
+
 def plot_predictions(y_true, y_predict, N_OUT=1, plot_samples=800, save=False):
     ''' Plot predictions and true values. '''
     fig = plt.figure(figsize=(14, 5))
@@ -92,3 +110,18 @@ def plot_predictions(y_true, y_predict, N_OUT=1, plot_samples=800, save=False):
     plt.show()
     if save:
         plt.savefig('predictions_horizon{}.pdf'.format(N_OUT), dpi=450)
+
+
+def plot_history(history, save=False):
+    if 'val_loss' in history.history.keys():
+        fig = plt.figure(figsize=(12, 5))
+        plt.plot(history.history['loss'], label='loss')
+        plt.plot(history.history['val_loss'], label='val_loss')
+        plt.ylabel('Loss')
+        plt.xlabel('Epochs')
+        plt.grid()
+        plt.tight_layout()
+        plt.legend()
+        if save:
+            plt.savefig('model_loss.pdf', dpi=450)
+        plt.show()
