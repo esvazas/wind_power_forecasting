@@ -3,6 +3,8 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+from sklearn.metrics import mean_squared_error, mean_absolute_error
+
 def smape(a, b):
     '''
     Calculates sMAPE
@@ -78,6 +80,14 @@ def series_to_supervised(data, n_in=1, n_out=1, dropnan=True):
     if dropnan:
         agg.dropna(inplace=True)
     return agg
+
+
+def eval_predictions(y_test, y_predict):
+    ''' Evaluate model performance. '''
+    mae = mean_absolute_error(y_test, y_predict)
+    rmse = np.sqrt(mean_squared_error(y_test, y_predict))
+    sm = smape(y_test.reshape(-1, 1), y_predict.reshape(-1,1))
+    return mae, rmse, sm
 
 
 def plot_series_predictions(y_true, y_predict, N_OUT=1, method='Naive', plot_samples=800, save=False):
