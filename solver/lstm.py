@@ -4,13 +4,36 @@ import tensorflow as tf
 from tensorflow import keras
 from solver.processing import smape
 
+from cond_rnn import ConditionalRNN
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 from sklearn.preprocessing import MinMaxScaler
-from keras.models import Sequential
-from keras.layers import Dense, LSTM
-from keras.optimizers import Adam, SGD
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, LSTM
+from tensorflow.keras.optimizers import Adam, SGD
 from keras.wrappers.scikit_learn import KerasRegressor
 from keras.callbacks import EarlyStopping, TensorBoard
+
+
+def fit_cond_lstm(X, y, X_val, y_val, X_extra, X_val_extra, batch_size, nb_epochs, neurons, n_past):
+    X = X.reshape(-1, n_past, int(X.shape[1] / n_past))
+    X_val = X_val.reshape(-1, n_past, int(X_val.shape[1] / n_past))
+
+    # define model
+    model = Sequential(layers=[
+        ConditionalRNN(neurons, cell='LSTM'),  # num_cells = 10
+        Dense(units=1, activation='linear')  # regression problem.
+    ])
+
+    model.compile(loss='mse', optimizer='adam')
+    # fit model
+    history = model.fit(
+        [X, X_extra], y, epochs=nb_epochs, batch_size=batch_size,
+        verbose=1, validation_data=([X_val, X_val_extra], y_val),
+        callbacks=[
+            TensorBoard(log_dir='/tmp/tensorboard', write_graph=True),
+            EarlyStopping(monitor='val_loss', patience=10, mode='auto')
+        ])
+    return model, history
 
 
 def fit_lstm(X, y, X_val, y_val, batch_size, nb_epochs, neurons, n_past):
