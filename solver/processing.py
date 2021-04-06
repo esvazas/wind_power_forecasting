@@ -97,7 +97,7 @@ def plot_series_predictions(y_true, y_predict, N_OUT=1, method='Naive', plot_sam
     plt.show()
 
 
-def plot_predictions(y_true, y_predict, N_OUT=1, plot_samples=800, save=False):
+def plot_predictions(y_true, y_predict, N_OUT=1, plot_samples=400, save=False):
     ''' Plot predictions and true values. '''
     fig = plt.figure(figsize=(14, 5))
     plt.plot(y_true[:plot_samples], label='observed')
