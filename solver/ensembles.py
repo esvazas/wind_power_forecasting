@@ -66,10 +66,18 @@ def train_homogeneous_ensemble(base_reg, X, y, s, n):
     return reg.estimators_, weights
 
 
-def make_predictions(reg_estimators, weights, scaler, X, y, fh=1):
+def print_evaluations(y_true, y_predict):
+    ''' Compute RMSE, MAE and sMAPE for predictions. '''
+    print("MAE: {} RMSE: {} sMAPE: {}".format(
+        round(mean_absolute_error(y_true, y_predict), 3),
+        round(np.sqrt(mean_squared_error(y_true, y_predict)), 3),
+        round(smape(y_true, y_predict), 3)))
+
+
+def make_predictions(reg_estimators, weights, scaler, X, y, fh=1, print_eval=True):
     ''' Make one-step forecasts for the given ensembles'''
     predictions = list()
-    for i in tqdm(range(len(y))):
+    for i in tqdm(range(X.shape[0])):
         # define input
         X_input = X[i,:]
         # make one-step forecast
@@ -79,41 +87,43 @@ def make_predictions(reg_estimators, weights, scaler, X, y, fh=1):
         # store forecast
         predictions.append(yhat)
     y_predict = np.array(predictions).flatten()
-    print(y_predict.shape, y.shape)
-    print("MAE: {} RMSE: {} sMAPE: {}".format(
-        round(mean_absolute_error(y, y_predict), 3),
-        round(np.sqrt(mean_squared_error(y, y_predict)), 3),
-        round(smape(y, y_predict), 3)))
+    # print predictions
+    if print_eval:
+        # rescale true values back
+        y_true = scaler.inverse_transform(y.reshape(-1, 1))
+        print("MAE: {} RMSE: {} sMAPE: {}".format(
+            round(mean_absolute_error(y_true, y_predict), 3),
+            round(np.sqrt(mean_squared_error(y_true, y_predict)), 3),
+            round(smape(y_true, y_predict), 3)))
     return y_predict
 
 
-def train_and_predict_heterogeneous_ensemble(train, test, s, n, n_out, n_past, target_idx, scaler, raw_target):
+def train_and_predict_heterogeneous_ensemble(X_train, y_train, X_test, y_test, s, n, n_out, base_reg1, base_reg2, scaler):
     print("________------ TRAIN AND PREDICT WITH HETEROGENEOUS ENSEMBLE ------ ________")
     s1, s2 = s
     n1, n2 = n
-    base_reg = DecisionTreeRegressor(min_samples_split=2, max_depth=50)
-    reg_estimators1, weights1 = train_homogeneous_ensemble(base_reg, train, s1, n1, target_idx)
-    y_predict = make_predictions(reg_estimators1, weights1, scaler, test, raw_target, target_idx, n_past)
-    print("DT HOMO1 ---")
-    print(y_predict.shape, raw_target.shape)
-    true_values = raw_target.iloc[-test.shape[0]:]
-    rmse, rmae, sm = eval_predictions(true_values, y_predict)
+    # build FIRST ensemble
+    print("DT HOMOGENEOUS ---")
+    reg_estimators1, weights1 = train_homogeneous_ensemble(base_reg1, X_train, y_train, s1, n1)
+    _ = make_predictions(reg_estimators1, weights1, scaler, X_test, y_test, n_out)
 
-    base_reg = SVR(C=10000, epsilon=0.01, gamma=0.001, kernel='rbf')
-    reg_estimators2, weights2 = train_homogeneous_ensemble(base_reg, train, s2, n2, target_idx)
-    y_predict = make_predictions(reg_estimators2, weights2, scaler, test, raw_target, target_idx, n_past)
-    print("svr HOMO1 ---")
-    true_values = raw_target.iloc[-test.shape[0]:]
-    rmse, rmae, sm = eval_predictions(true_values, y_predict)
+    # build SECOND ensemble
+    print("SVR HOMOGENEOUS ---")
+    reg_estimators2, weights2 = train_homogeneous_ensemble(base_reg2, X_train, y_train, s2, n2)
+    _ = make_predictions(reg_estimators2, weights2, scaler, X_test, y_test, n_out)
 
+    # build COMBINED ensemble with weighted voting
     reg_weights = np.concatenate([weights1, weights2])
-    y_predict = np.zeros((test.shape[0]))
+    y_predict = np.zeros((X_test.shape[0]))
     for est, w in zip(reg_estimators1 + reg_estimators2, reg_weights):
         pred = make_predictions(
-            [est], [w], scaler, test, raw_target, target_idx, n_past, n_out) * w
+            [est], [w], scaler, X_test, y_test, n_out, print_eval=False) * w
         y_predict = y_predict + pred.flatten()
     y_predict = y_predict / np.sum(reg_weights)
-    print("svr&DT Hetero ---")
-    true_values = raw_target.iloc[-test.shape[0]:]
-    rmse, rmae, sm = eval_predictions(true_values, y_predict)
+    print("HETEROGENEOUS ---")
+
+    # scale outputs for evaluation
+    y_true = scaler.inverse_transform(y_test.reshape(-1,1))
+    print_evaluations(y_true, y_predict)
+
     return y_predict
