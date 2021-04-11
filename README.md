@@ -26,6 +26,7 @@ notebooks
 solver
    |-- arima.py
    |-- ensembles.py
+   |-- get_hyperparameters.py
    |-- lstm.py
    |-- persistence.py
    |-- processing.py
@@ -33,6 +34,7 @@ solver
 LICENSE
 README.md
 setup.py
+wind_power37.yml
 ```
 
 # Usage
