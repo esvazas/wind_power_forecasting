@@ -123,7 +123,7 @@ if __name__ == '__main__':
             print("TRAIN:", train_index, "TEST:", test_index)
 
         # create model
-        model = KerasRegressor(build_fn=create_lstm())
+        model = KerasRegressor(build_fn=create_lstm)
 
         # define search space
         search_spaces = {
