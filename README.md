@@ -10,6 +10,7 @@ The notebooks can be used for comparison of various forecasting methodologies - 
 * datasets - directory containing generated datasets by each notebook
 * solver - directory containing all required functions used in the notebooks
 * notebooks - directory containing all workflow for wind power forecasting
+* script - directory with external files important for forecasting
 
 # Directory tree:
 ```bash
@@ -23,18 +24,19 @@ notebooks
    |-- 5_LSTM_forecasting.ipynb
    |-- 5_Persistence_forecasting.ipynb
    |-- 5_ensembles_forecasting.ipynb
+script
+   |-- get_hyperparameters.py
 solver
    |-- arima.py
    |-- ensembles.py
-   |-- get_hyperparameters.py
    |-- lstm.py
    |-- persistence.py
    |-- processing.py
+wind_power37.yml
 .gitignore
 LICENSE
 README.md
 setup.py
-wind_power37.yml
 ```
 
 # Usage
