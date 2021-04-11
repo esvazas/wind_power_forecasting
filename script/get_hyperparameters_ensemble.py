@@ -123,7 +123,7 @@ if __name__ == '__main__':
         # Run Grid-cross validation
         param = {
             'n_estimators':[10, 50, 200, 500],
-            'max_samples':[100, 500, 1_000, 5_000],
+            'max_samples':[100, 500, 1_000, 2_500],
             'base_estimator__max_features': ['auto', 'sqrt', 'log2'],
             'base_estimator__max_depth': [10, 50, 100, None],
             'base_estimator__min_samples_split': [2, 0.1, 0.25, 0.5]

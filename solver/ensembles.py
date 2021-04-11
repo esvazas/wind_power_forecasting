@@ -36,18 +36,15 @@ def inverse_difference(history, yhat, interval):
     return yhat + history.iloc[-interval].values
 
 
-def get_predictions(model, x_test, fh):
-    for i in range(0, fh):
-        y_predict = model.predict(x_test)
-        x_test = np.roll(x_test, -1, axis=1)
-        x_test[:,-1] = y_predict
+def get_predictions(model, x_test):
+    y_predict = model.predict(x_test)
     return y_predict
 
 
-def get_predictions_for_weights(estimators, weights, x_test, fh):
+def get_predictions_for_weights(estimators, weights, x_test):
     y_predict = np.zeros((x_test.shape[0]))
     for est, w in zip(estimators, weights):
-        y_predict = y_predict + get_predictions(est, x_test, fh) * w
+        y_predict = y_predict + get_predictions(est, x_test) * w
     return y_predict / np.sum(weights)
 
 
@@ -74,14 +71,14 @@ def print_evaluations(y_true, y_predict):
         round(smape(y_true, y_predict), 3)))
 
 
-def make_predictions(reg_estimators, weights, scaler, X, y, fh=1, print_eval=True):
+def make_predictions(reg_estimators, weights, scaler, X, y, print_eval=True):
     ''' Make one-step forecasts for the given ensembles'''
     predictions = list()
     for i in tqdm(range(X.shape[0]), disable=~print_eval):
         # define input
         X_input = X[i,:]
         # make one-step forecast
-        yhat = get_predictions_for_weights(reg_estimators, weights, X_input.reshape(1,-1), fh)
+        yhat = get_predictions_for_weights(reg_estimators, weights, X_input.reshape(1,-1))
         # invert scaling
         yhat = scaler.inverse_transform(yhat.reshape(-1,1))
         # store forecast
@@ -99,7 +96,7 @@ def make_predictions(reg_estimators, weights, scaler, X, y, fh=1, print_eval=Tru
 
 
 def train_and_predict_heterogeneous_ensemble(
-        X_train, y_train, X_test, y_test, s, n, n_out, base_reg1, base_reg2, scaler):
+        X_train, y_train, X_test, y_test, s, n, base_reg1, base_reg2, scaler):
     '''
     Function to train two homogeneous ensembles base_reg1 and base_reg2 and combine their
     predictions as homogeneous ensembles.
@@ -110,19 +107,19 @@ def train_and_predict_heterogeneous_ensemble(
     # build FIRST ensemble
     print("--- Case #1: HOMOGENEOUS ---")
     reg_estimators1, weights1 = train_homogeneous_ensemble(base_reg1, X_train, y_train, s1, n1)
-    _ = make_predictions(reg_estimators1, weights1, scaler, X_test, y_test, n_out)
+    _ = make_predictions(reg_estimators1, weights1, scaler, X_test, y_test)
 
     # build SECOND ensemble
     print("--- Case #2: HOMOGENEOUS ---")
     reg_estimators2, weights2 = train_homogeneous_ensemble(base_reg2, X_train, y_train, s2, n2)
-    _ = make_predictions(reg_estimators2, weights2, scaler, X_test, y_test, n_out)
+    _ = make_predictions(reg_estimators2, weights2, scaler, X_test, y_test)
 
     # build COMBINED ensemble with weighted voting
     reg_weights = np.concatenate([weights1, weights2])
     y_predict = np.zeros((X_test.shape[0]))
     for est, w in tqdm(zip(reg_estimators1 + reg_estimators2, reg_weights)):
         pred = make_predictions(
-            [est], [w], scaler, X_test, y_test, n_out, print_eval=False) * w
+            [est], [w], scaler, X_test, y_test, print_eval=False) * w
         y_predict = y_predict + pred.flatten()
     y_predict = y_predict / np.sum(reg_weights)
 
