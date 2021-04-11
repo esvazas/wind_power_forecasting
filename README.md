@@ -25,7 +25,8 @@ notebooks
    |-- 5_Persistence_forecasting.ipynb
    |-- 5_ensembles_forecasting.ipynb
 script
-   |-- get_hyperparameters.py
+   |-- get_hyperparameters_LSTM.py
+   |-- get_hyperparameters_ensemble.py
 solver
    |-- arima.py
    |-- ensembles.py
