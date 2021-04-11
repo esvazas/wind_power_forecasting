@@ -4,7 +4,7 @@ The directory contains main steps for wind power forecasting applications and is
 All pre-forecasting required steps are covered - data analysis, imputation and feature engineering. 
 The notebooks can be used for comparison of various forecasting methodologies - Persistence, ARIMA, LSTM or ensembles (SVR or Decision trees).
 
-** Note: Datasets will be provided later as Repository is continuously updated. **
+** Note: Datasets will be provided later as Repository is being continuously updated. **
 
 # Directory content:
 * datasets - directory containing generated datasets by each notebook
