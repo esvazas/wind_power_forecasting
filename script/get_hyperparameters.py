@@ -1,16 +1,14 @@
 import os
 import json
 import numpy as np
-import pandas as pd
-from tqdm import tqdm
 
 
-from sklearn.metrics import mean_squared_error
 from sklearn.ensemble import BaggingRegressor
 from sklearn.svm import SVR
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.model_selection import GridSearchCV, TimeSeriesSplit
 from sklearn.preprocessing import MinMaxScaler
+
 
 from solver import processing
 
@@ -27,6 +25,7 @@ method = 'DT' # 'SVR' or 'DT'
 # FEATURE ENGINEERING PARAMETERS
 N_OUT = 1
 N_PAST = 48
+
 
 class NumpyEncoder(json.JSONEncoder):
     """ Special json encoder for numpy types """
