@@ -1,13 +1,10 @@
 # How to forecast wind-generated power?
  
-The directory contains main steps for wind power forecasting applications and is a part of a Master thesis at KU Leuven, 2021. 
-All pre-forecasting required steps are covered - data analysis, imputation and feature engineering. 
-The notebooks can be used for comparison of various forecasting methodologies - Persistence, ARIMA, LSTM or ensembles (SVR or Decision trees).
-
-** Note: Datasets will be provided later as Repository is being continuously updated. **
+The directory contains main steps for wind power forecasting applications and is a part of a Master thesis at KU Leuven, 2022. 
+The dataset of interest is *La Haute Borne* wind farm in France. The repository details all preprocessing and forecasting steps - data analysis, imputation, feature engineering and modeling. 
+The notebooks are used to compare various forecasting methodologies - Persistence, ARIMA, LSTM or ensembles (SVR or Decision trees).
 
 # Directory content:
-* datasets - directory containing generated datasets by each notebook
 * solver - directory containing all required functions used in the notebooks
 * notebooks - directory containing all workflow for wind power forecasting
 * script - directory with external files important for forecasting
